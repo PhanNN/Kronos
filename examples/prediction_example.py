@@ -1,7 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 import sys
-sys.path.append("../")
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from model import Kronos, KronosTokenizer, KronosPredictor
 
 
@@ -46,7 +47,7 @@ model = Kronos.from_pretrained("NeoQuasar/Kronos-small")
 predictor = KronosPredictor(model, tokenizer, max_context=512)
 
 # 3. Prepare Data
-df = pd.read_csv("./data/XSHG_5min_600977.csv")
+df = pd.read_csv("./vn30/VN30INDEX.csv")
 df['timestamps'] = pd.to_datetime(df['timestamps'])
 
 lookback = 400
@@ -63,7 +64,7 @@ pred_df = predictor.predict(
     y_timestamp=y_timestamp,
     pred_len=pred_len,
     T=1.0,
-    top_p=0.9,
+    top_p=0.8,
     sample_count=1,
     verbose=True
 )

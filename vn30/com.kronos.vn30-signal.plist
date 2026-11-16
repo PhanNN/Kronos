@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Runs vn30/daily_signal.py at 17:00 Monday-Friday (macOS launchd).
+  Replace PYTHON_PATH with the interpreter that has torch/pandas/requests installed, then:
+    mkdir -p logs
+    sed "s#PYTHON_PATH#$(which python)#" vn30/com.kronos.vn30-signal.plist > ~/Library/LaunchAgents/com.kronos.vn30-signal.plist
+    launchctl load ~/Library/LaunchAgents/com.kronos.vn30-signal.plist
+  Run once now to test:  launchctl start com.kronos.vn30-signal
+  Remove:                launchctl unload ~/Library/LaunchAgents/com.kronos.vn30-signal.plist
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.kronos.vn30-signal</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>PYTHON_PATH</string>
+        <string>/Users/phan/Documents/TT/Freelance/Kronos/vn30/daily_signal.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/phan/Documents/TT/Freelance/Kronos/vn30</string>
+
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/phan/Documents/TT/Freelance/Kronos/logs/vn30-signal.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/phan/Documents/TT/Freelance/Kronos/logs/vn30-signal.log</string>
+</dict>
+</plist>

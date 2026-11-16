@@ -1,0 +1,73 @@
+#Finetune config for VN30INDEX daily candles (CafeF data, built by vn30/convert_to_csv.py)
+#Run from inside finetune_csv/: relative paths below resolve against that directory.
+#  cd finetune_csv && python train_sequential.py --config configs/config_vn30_daily.yaml
+
+data:
+  data_path: "../vn30/VN30INDEX.csv"
+  # ~6 months of trading days as context, ~1 month ahead as target
+  lookback_window: 120
+  predict_window: 20
+  max_context: 512
+  clip: 5.0
+  # split by time; each split must be longer than lookback + predict + 1 (= 141 rows)
+  # 1690 rows -> train 2020-01-02..2025-02-07 (1267 rows, 1127 windows)
+  #              val   2025-02-10..2026-02-12 (254 rows, 114 windows)
+  #              test  2026-02-13..2026-10-23 (169 rows, 29 windows)
+  # the test split is never used in training; keep it for comparing base vs finetuned models
+  train_ratio: 0.75
+  val_ratio: 0.15
+  test_ratio: 0.10
+
+training:
+  # small dataset (~1100 train windows): keep epochs low to limit overfitting
+  tokenizer_epochs: 10
+  basemodel_epochs: 10
+  batch_size: 32
+  log_interval: 10
+  num_workers: 2
+  seed: 42
+
+  tokenizer_learning_rate: 0.0002
+  # template uses 1e-6, which barely moves the weights in ~350 steps; raise/lower based on val loss
+  predictor_learning_rate: 0.00001
+
+  adam_beta1: 0.9
+  adam_beta2: 0.95
+  adam_weight_decay: 0.1
+
+  # gradient accumulation steps for tokenizer training
+  accumulation_steps: 1
+
+# model path configuration
+model_paths:
+  # Hugging Face model IDs (downloaded automatically) or local paths
+  pretrained_tokenizer: "NeoQuasar/Kronos-Tokenizer-base"
+  pretrained_predictor: "NeoQuasar/Kronos-small"
+
+  # experiment name - other paths will be generated based on this
+  exp_name: "vn30_daily"
+  base_path: "./finetuned"
+
+  # leave empty: generated as {base_path}/{exp_name} and {base_path}/{exp_name}/tokenizer/best_model
+  base_save_path: ""
+  finetuned_tokenizer: ""
+
+  tokenizer_save_name: "tokenizer"
+  basemodel_save_name: "basemodel"
+
+experiment:
+  name: "kronos_vn30_finetune"
+  description: "Finetune Kronos-small on VN30INDEX daily data"
+  use_comet: false
+
+  # control the training phase
+  train_tokenizer: true
+  train_basemodel: true
+
+  # if true, skip the existing model training
+  skip_existing: false
+
+# device configuration (falls back to CPU when CUDA is unavailable; MPS is not used)
+device:
+  use_cuda: true
+  device_id: 0
